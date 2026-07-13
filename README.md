@@ -14,8 +14,8 @@
 
 | 用途 | 架构与类型 | 下载 | SHA-256 |
 | --- | --- | --- | --- |
-| Android 4.4 电视及 32 位设备 | ARM32 Release | [Jade-v31-TV-Android4.4-ARM32-release.apk](packages/Jade-v31-TV-Android4.4-ARM32-release.apk) | `dc6d59a1893108317fb6fe7885997fd03ec7db1ce9c7b56f862e2a37ad000f0d` |
-| BlueStacks 等 64 位模拟器调试 | ARM64 Debug | [Jade-v31-BlueStacks-ARM64-debug.apk](packages/Jade-v31-BlueStacks-ARM64-debug.apk) | `f33f03402d593f97b2db947049d900bdb80c5fc084681138ade59312e00c2e1f` |
+| Android 4.4 电视及 32 位设备 | ARM32 Release | [Jade-v31-TV-Android4.4-ARM32-release.apk](https://github.com/2334336/box/releases/download/v0.0.4-autostart/Jade-v31-TV-Android4.4-ARM32-release.apk) | `dc6d59a1893108317fb6fe7885997fd03ec7db1ce9c7b56f862e2a37ad000f0d` |
+| BlueStacks 等 64 位模拟器调试 | ARM64 Debug | [Jade-v31-BlueStacks-ARM64-debug.apk](https://github.com/2334336/box/releases/download/v0.0.4-autostart/Jade-v31-BlueStacks-ARM64-debug.apk) | `f33f03402d593f97b2db947049d900bdb80c5fc084681138ade59312e00c2e1f` |
 
 两个安装包均为版本 `31 / 0.0.4-autostart`，最低支持 Android 4.1（API 16）。电视优先安装 ARM32 Release；ARM64 Debug 主要用于模拟器验证。
 
@@ -109,4 +109,3 @@ TVBox 简易修改 多源版本 支持安卓4.4
    <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=mlabalabala/box&type=Date" />
  </picture>
 </a>
-
