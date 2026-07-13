@@ -1,5 +1,24 @@
 # Jade box
 
+本仓库基于 [mlabalabala/box](https://github.com/mlabalabala/box) 修改；其上游源项目为 [CatVodTVOfficial/TVBoxOSC](https://github.com/CatVodTVOfficial/TVBoxOSC)。本次修改继续兼容 Android 4.4（`minSdk 16`），并补充 ARM64 构建与可选开机自启功能。
+
+## 本次改动
+
+- 设置页新增“开机自启”开关，默认关闭。
+- 开启后在开机完成的第 3 秒尝试启动；若应用尚未成功进入主页，再依次等待 5、10、15 秒重试，即触发时间约为开机后的第 3、8、18、33 秒。
+- 应用成功进入主页后会取消剩余重试；重复 Intent 使用 `CLEAR_TOP` 和 `SINGLE_TOP`，不会重复创建多个主页实例。
+- Android 10 及以上版本使用悬浮窗权限辅助从后台启动。首次开启时请允许 Jade“显示在其他应用上层”；Android 4.4 无需此权限。
+- 增加 `arm64-v8a` 原生库和按 ABI 构建能力，同时保留 `armeabi-v7a` 支持。
+
+## 安装包
+
+| 用途 | 架构与类型 | 下载 | SHA-256 |
+| --- | --- | --- | --- |
+| Android 4.4 电视及 32 位设备 | ARM32 Release | [Jade-v31-TV-Android4.4-ARM32-release.apk](packages/Jade-v31-TV-Android4.4-ARM32-release.apk) | `dc6d59a1893108317fb6fe7885997fd03ec7db1ce9c7b56f862e2a37ad000f0d` |
+| BlueStacks 等 64 位模拟器调试 | ARM64 Debug | [Jade-v31-BlueStacks-ARM64-debug.apk](packages/Jade-v31-BlueStacks-ARM64-debug.apk) | `f33f03402d593f97b2db947049d900bdb80c5fc084681138ade59312e00c2e1f` |
+
+两个安装包均为版本 `31 / 0.0.4-autostart`，最低支持 Android 4.1（API 16）。电视优先安装 ARM32 Release；ARM64 Debug 主要用于模拟器验证。
+
 ### 竖屏手机版
 #### [项目地址 https://github.com/mlabalabala/TVBoxOS-Mobile](https://github.com/mlabalabala/TVBoxOS-Mobile)
 #### [源项目地址 https://github.com/XiaoRanLiu3119/TVBoxOS-Mobile](https://github.com/XiaoRanLiu3119/TVBoxOS-Mobile)
@@ -90,5 +109,4 @@ TVBox 简易修改 多源版本 支持安卓4.4
    <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=mlabalabala/box&type=Date" />
  </picture>
 </a>
-
 

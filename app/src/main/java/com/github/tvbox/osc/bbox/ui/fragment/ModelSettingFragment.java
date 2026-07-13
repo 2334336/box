@@ -1,6 +1,10 @@
 package com.github.tvbox.osc.bbox.ui.fragment;
 
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.net.Uri;
+import android.os.Build;
+import android.provider.Settings;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -15,6 +19,7 @@ import com.github.tvbox.osc.bbox.bean.IJKCode;
 import com.github.tvbox.osc.bbox.constant.URL;
 import com.github.tvbox.osc.bbox.event.RefreshEvent;
 import com.github.tvbox.osc.bbox.player.thirdparty.RemoteTVBox;
+import com.github.tvbox.osc.bbox.receiver.BootReceiver;
 import com.github.tvbox.osc.bbox.ui.activity.SettingActivity;
 import com.github.tvbox.osc.bbox.ui.adapter.ApiHistoryDialogAdapter;
 import com.github.tvbox.osc.bbox.ui.adapter.SelectDialogAdapter;
@@ -61,6 +66,7 @@ public class ModelSettingFragment extends BaseLazyFragment {
     private TextView tvHistoryNum;
     private TextView tvSearchView;
     private TextView tvShowPreviewText;
+    private TextView tvAutoStart;
     private TextView tvFastSearchText;
     private TextView tvm3u8AdText;
     private TextView tvRecStyleText;
@@ -94,6 +100,8 @@ public class ModelSettingFragment extends BaseLazyFragment {
         tvRecStyleText.setText(Hawk.get(HawkConfig.HOME_REC_STYLE, false) ? "是" : "否");
         tvShowPreviewText = findViewById(R.id.showPreviewText);
         tvShowPreviewText.setText(Hawk.get(HawkConfig.SHOW_PREVIEW, true) ? "开启" : "关闭");
+        tvAutoStart = findViewById(R.id.tvAutoStart);
+        tvAutoStart.setText(Hawk.get(HawkConfig.AUTO_START, false) ? "开启" : "关闭");
         tvDebugOpen = findViewById(R.id.tvDebugOpen);
         tvParseWebView = findViewById(R.id.tvParseWebView);
         tvMediaCodec = findViewById(R.id.tvMediaCodec);
@@ -647,6 +655,28 @@ public class ModelSettingFragment extends BaseLazyFragment {
                 FastClickCheckUtil.check(v);
                 Hawk.put(HawkConfig.SHOW_PREVIEW, !Hawk.get(HawkConfig.SHOW_PREVIEW, true));
                 tvShowPreviewText.setText(Hawk.get(HawkConfig.SHOW_PREVIEW, true) ? "开启" : "关闭");
+            }
+        });
+        findViewById(R.id.llAutoStart).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                FastClickCheckUtil.check(v);
+                boolean enabled = !Hawk.get(HawkConfig.AUTO_START, false);
+                Hawk.put(HawkConfig.AUTO_START, enabled);
+                tvAutoStart.setText(enabled ? "开启" : "关闭");
+                if (!enabled) {
+                    BootReceiver.cancelPendingRetries(mContext);
+                } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M
+                        && !Settings.canDrawOverlays(mContext)) {
+                    try {
+                        Intent permissionIntent = new Intent(
+                                Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                                Uri.parse("package:" + mContext.getPackageName()));
+                        startActivity(permissionIntent);
+                    } catch (Exception e) {
+                        Toast.makeText(mContext, "请允许 Jade 显示在其他应用上层", Toast.LENGTH_LONG).show();
+                    }
+                }
             }
         });
         findViewById(R.id.llHistoryNum).setOnClickListener(new View.OnClickListener() {

@@ -39,6 +39,7 @@ import com.github.tvbox.osc.bbox.bean.AbsSortXml;
 import com.github.tvbox.osc.bbox.bean.MovieSort;
 import com.github.tvbox.osc.bbox.bean.SourceBean;
 import com.github.tvbox.osc.bbox.event.RefreshEvent;
+import com.github.tvbox.osc.bbox.receiver.BootReceiver;
 import com.github.tvbox.osc.bbox.server.ControlManager;
 import com.github.tvbox.osc.bbox.ui.adapter.HomePageAdapter;
 import com.github.tvbox.osc.bbox.ui.adapter.SelectDialogAdapter;
@@ -111,7 +112,19 @@ public class HomeActivity extends BaseActivity {
     @Override
     protected void onCreate(@Nullable @org.jetbrains.annotations.Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        cancelAutoStartRetries();
         verifyPermissions(this);// 动态申请权限
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        setIntent(intent);
+        cancelAutoStartRetries();
+    }
+
+    private void cancelAutoStartRetries() {
+        BootReceiver.cancelPendingRetries(this);
     }
 
     private static final int REQUEST_EXTERNAL_STORAGE = 1;
