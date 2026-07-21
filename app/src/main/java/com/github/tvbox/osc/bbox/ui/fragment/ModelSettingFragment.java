@@ -72,6 +72,7 @@ public class ModelSettingFragment extends BaseLazyFragment {
     private TextView tvRecStyleText;
     private TextView tvIjkCachePlay;
     private TextView tvHomeDefaultShow;
+    private TextView tvStoreApi;
 
     private View notificationPoint;
 
@@ -132,6 +133,8 @@ public class ModelSettingFragment extends BaseLazyFragment {
         tvIjkCachePlay.setText(Hawk.get(HawkConfig.IJK_CACHE_PLAY, false) ? "开启" : "关闭");
         tvHomeDefaultShow = findViewById(R.id.tvHomeText);
         tvHomeDefaultShow.setText(Hawk.get(HawkConfig.DEFAULT_LOAD_LIVE, false) ? "直播" : "点播");
+        tvStoreApi = findViewById(R.id.tvStoreApi);
+        refreshStoreApiLabel();
         checkHasUpdate();
         findViewById(R.id.llCheckUpdate).setOnClickListener( v -> {
             Toast.makeText(mActivity, "检查更新中...", Toast.LENGTH_SHORT).show();
@@ -313,11 +316,13 @@ public class ModelSettingFragment extends BaseLazyFragment {
                 @Override
                 public void onchange(String name) {
                     Hawk.put(HawkConfig.STORE_API_NAME, name);
+                    refreshStoreApiLabel();
                 }
             });
             storeApiDialog.setOnDismissListener(dialog -> {
                 ((BaseActivity) mActivity).hideSysBar();
                 EventBus.getDefault().unregister(dialog);
+                refreshStoreApiLabel();
             });
             storeApiDialog.show();
         });
@@ -388,6 +393,7 @@ public class ModelSettingFragment extends BaseLazyFragment {
                 @Override
                 public void click(String value) {
                     Hawk.put(HawkConfig.STORE_API_NAME, value);
+                    refreshStoreApiLabel();
                     try {
                         StoreApiConfig.get().Subscribe(getContext());
                     } catch (Exception e) {
@@ -858,6 +864,27 @@ public class ModelSettingFragment extends BaseLazyFragment {
                 // .updateDownLoader(new CustomUpdateDownloader())
                 .updateHttpService(new OkGoUpdateHttpService())
                 .update();
+    }
+
+    private void refreshStoreApiLabel() {
+        if (tvStoreApi == null) {
+            return;
+        }
+        String name = Hawk.get(HawkConfig.STORE_API_NAME, "");
+        if (name == null || name.isEmpty()) {
+            tvStoreApi.setText("未配置");
+            return;
+        }
+        // 设置行只显示简短提示，完整地址在对话框里看
+        if (name.startsWith("http://") || name.startsWith("https://")) {
+            String shortName = name.replace("https://", "").replace("http://", "");
+            if (shortName.length() > 18) {
+                shortName = shortName.substring(0, 18) + "…";
+            }
+            tvStoreApi.setText(shortName);
+        } else {
+            tvStoreApi.setText(name.length() > 12 ? name.substring(0, 12) + "…" : name);
+        }
     }
 
     private void onClickIjkCachePlay(View v) {

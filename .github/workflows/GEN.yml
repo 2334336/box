@@ -2,33 +2,79 @@ name: GENERATE APK
 
 on:
   workflow_dispatch:
+    inputs:
+      release_tag:
+        description: 'Release tag, e.g. v0.0.5-store-status'
+        required: true
+        default: 'v0.0.5-store-status'
+      release_name:
+        description: 'Release title'
+        required: true
+        default: 'Jade 多源配置状态提示修复'
+      create_release:
+        description: 'Whether to publish GitHub Release'
+        required: true
+        type: boolean
+        default: true
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Set up JDK 8
-        uses: actions/setup-java@v3
+      - name: Set up JDK 11
+        uses: actions/setup-java@v4
         with:
-          java-version: '8'
+          java-version: '11'
           distribution: 'temurin'
 
-      - name: Build With Gradle
+      - name: Build Release APK
         run: |
           chmod +x gradlew
-          ./gradlew assembleRelease --build-cache --parallel --daemon --warning-mode all
+          ./gradlew clean assembleRelease --build-cache --parallel --warning-mode all
 
       - name: Prepare APK
+        id: prepare
         run: |
-          mkdir -p ${{ github.workspace }}/apk/
-          find . -name "*.apk" -exec cp {} ${{ github.workspace }}/apk/ \;
+          mkdir -p "${{ github.workspace }}/apk"
+          # Prefer project Release output, fallback to any apk
+          if [ -f Release/app.apk ]; then
+            cp Release/app.apk "${{ github.workspace }}/apk/Jade-v31-store-status-release.apk"
+          fi
+          find app/build/outputs -name "*.apk" -exec cp {} "${{ github.workspace }}/apk/" \; 2>/dev/null || true
+          ls -lah "${{ github.workspace }}/apk"
+          echo "apk_count=$(ls -1 "${{ github.workspace }}/apk"/*.apk 2>/dev/null | wc -l | tr -d ' ')" >> "$GITHUB_OUTPUT"
 
       - name: Upload APK Artifact
-        uses: actions/upload-artifact@master
+        uses: actions/upload-artifact@v4
         with:
-          name: box
+          name: jade-apk
           path: ${{ github.workspace }}/apk/*
+          if-no-files-found: error
+
+      - name: Publish GitHub Release
+        if: ${{ inputs.create_release && steps.prepare.outputs.apk_count != '0' }}
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ inputs.release_tag }}
+          name: ${{ inputs.release_name }}
+          draft: false
+          prerelease: false
+          generate_release_notes: true
+          files: ${{ github.workspace }}/apk/*
+          body: |
+            ## 变更
+            - 修复「多源配置」输入链接点确定后出现空白白框、看不出状态的问题
+            - 订阅过程在对话框内显示：等待 / 请求中 / 成功 / 失败
+            - 设置页「多源配置」右侧显示当前配置摘要
+
+            ## 安装
+            下载下方 Release APK 安装即可。
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
