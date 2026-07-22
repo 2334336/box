@@ -1,6 +1,7 @@
 apply plugin: 'com.android.application'
 
 def targetAbis = (project.findProperty('targetAbis') ?: 'armeabi-v7a,arm64-v8a').split(',')
+def releaseBaseName = 'Jade-v31-store-status'
 
 android {
     compileSdkVersion 30
@@ -20,7 +21,8 @@ android {
             def newName = '';
             //只有release编译时生效
             if(variant.buildType.name == 'release') {
-                def releaseApkName = "app.apk"
+                def abi = output.getFilter(com.android.build.OutputFile.ABI)
+                def releaseApkName = "${releaseBaseName}-${abi}-release.apk"
 //                def releaseApkName = "app_${variant.buildType.name}.apk"
 //                def releaseApkName = "Jade_SHJ_${releaseTime()}_${variant.buildType.name}.apk"
                 // 设置apk输出文件夹
@@ -71,10 +73,13 @@ android {
         }
     }
 
-    // 禁用 ABI 分割
+    // ARM32 与 ARM64 分别输出，避免生成包含两套原生库的统一 APK。
     splits {
         abi {
-            enable false // 禁用 ABI 分割
+            enable true
+            reset()
+            include(*targetAbis)
+            universalApk false
         }
     }
 

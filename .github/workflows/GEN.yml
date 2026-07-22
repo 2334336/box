@@ -4,13 +4,13 @@ on:
   workflow_dispatch:
     inputs:
       release_tag:
-        description: 'Release tag, e.g. v0.0.5-store-status'
+        description: 'Release tag, e.g. v0.0.6-abi-split'
         required: true
-        default: 'v0.0.5-store-status'
+        default: 'v0.0.6-abi-split'
       release_name:
         description: 'Release title'
         required: true
-        default: 'Jade 多源配置状态提示修复'
+        default: 'Jade 按架构独立安装包'
       create_release:
         description: 'Whether to publish GitHub Release'
         required: true
@@ -43,18 +43,16 @@ jobs:
         id: prepare
         run: |
           mkdir -p "${{ github.workspace }}/apk"
-          # Prefer project Release output, fallback to any apk
-          if [ -f Release/app.apk ]; then
-            cp Release/app.apk "${{ github.workspace }}/apk/Jade-v31-store-status-release.apk"
-          fi
-          find app/build/outputs -name "*.apk" -exec cp {} "${{ github.workspace }}/apk/" \; 2>/dev/null || true
+          cp Release/Jade-v31-store-status-armeabi-v7a-release.apk "${{ github.workspace }}/apk/"
+          cp Release/Jade-v31-store-status-arm64-v8a-release.apk "${{ github.workspace }}/apk/"
           ls -lah "${{ github.workspace }}/apk"
-          echo "apk_count=$(ls -1 "${{ github.workspace }}/apk"/*.apk 2>/dev/null | wc -l | tr -d ' ')" >> "$GITHUB_OUTPUT"
+          test "$(find "${{ github.workspace }}/apk" -maxdepth 1 -name '*.apk' | wc -l | tr -d ' ')" = "2"
+          echo "apk_count=2" >> "$GITHUB_OUTPUT"
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: jade-apk
+          name: jade-apk-by-abi
           path: ${{ github.workspace }}/apk/*
           if-no-files-found: error
 
@@ -75,6 +73,9 @@ jobs:
             - 设置页「多源配置」右侧显示当前配置摘要
 
             ## 安装
-            下载下方 Release APK 安装即可。
+            - `armeabi-v7a`：32 位包，优先用于 Android 4.4 电视盒子
+            - `arm64-v8a`：64 位包，用于 64 位电视、手机或模拟器
+
+            两个 APK 按架构独立打包，不提供统一 universal APK。
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
