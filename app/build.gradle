@@ -58,18 +58,10 @@ android {
         debug {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             minifyEnabled false
-
-            ndk {
-                abiFilters(*targetAbis)
-            }
         }
         release {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             minifyEnabled true
-
-            ndk {
-                abiFilters(*targetAbis)
-            }
         }
     }
 
